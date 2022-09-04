@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "cj_prop_modid",
+  "version": "${version}",
+  "name": "cj_prop_mod_name",
+  "description": "carpet addition for minecraft",
+  "authors": [
+    "Cjsah"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": "",
+    "issues": ""
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.cjsah.cga.CGAClient"
+    ],
+    "main": [
+      "net.cjsah.cga.CGAServer"
+    ]
+  },
+  "mixins": [
+    "cga.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "minecraft": ">=1.19",
+    "fabric": "*",
+    "carpet": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "parent": "carpet"
+    }
+  }
+}

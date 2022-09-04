@@ -1,0 +1,92 @@
+plugins {
+    id 'fabric-loom' version '0.13-SNAPSHOT'
+    id 'maven-publish'
+}
+
+archivesBaseName = mod_name
+version = "${mod_version}-mc${mc_version}"
+group = maven_group
+
+if (build_number != 'undefined') version += "+build.${build_number}"
+
+repositories {
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+    maven {
+        name = 'Carpet'
+        url 'https://masa.dy.fi/maven'
+    }
+    maven {
+        name = 'ModMenu'
+        url 'https://maven.terraformersmc.com/releases/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${mc_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${mc_version}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${fapi_version}")
+
+    modImplementation("carpet:fabric-carpet:${carpet_version}")
+
+    modRuntimeOnly("com.terraformersmc:modmenu:${modmenu_version}")
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+        filter {it
+                .replace("cj_prop_modid", mod_id)
+                .replace("cj_prop_mod_name", mod_name)
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = 17
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_$archivesBaseName" }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact(remapJar) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
+
+    def ENV = System.getenv()
+    if (ENV.MAVEN_URL) {
+        repositories.maven {
+            url ENV.MAVEN_URL
+            credentials {
+                username ENV.MAVEN_USERNAME
+                password ENV.MAVEN_PASSWORD
+            }
+        }
+    }
+}
